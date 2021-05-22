@@ -11,10 +11,21 @@ class Function:
         self.crv = crv
         self.R = 8.3145  # Universal gas constant
         self.x = [p / 100.0 for p in range(50, 251, 1)]
-        self.v = [v for v in np.arange(-10, 11, 10 ** -5)]
+        self.v_neg = [v for v in np.arange(-10, 0, 10 ** -5)]
+        self.v_pos = [-x for x in self.v_neg]
+        # x < 0
+        self.vdw_neg = [v for v in np.arange(-15, - 0.29, 0.01)]
+        # x > 0
+        self.vdw_pos1 = [v for v in np.arange(0.1, 3.55, 0.1)]
+        self.vdw_pos2 = [v for v in np.arange(3.99, 4.01, 0.001)]
+        self.vdw_pos3 = [v for v in np.arange(4.15, 15, 0.1)]
+
         self.y1 = []
         self.y2 = []
         self.y3 = []
+        self.y4 = []
+        self.y5 = []
+        self.y6 = []
         self.set_data()
 
     # first graph
@@ -29,10 +40,10 @@ class Function:
 
     # second graph
     def der_attr(self, r):
-        return -12 * self.beta / r ** 7
+        return +12 * self.beta / r ** 7
 
     def der_rep(self, r):
-        return +12 * self.alpha / r ** 13
+        return -12 * self.alpha / r ** 13
 
     def t_force(self, r):
         return self.der_rep(r) + self.der_attr(r)
@@ -46,7 +57,7 @@ class Function:
         :param V: Volume
         :return: P , pression (Pa)
         '''
-        return self.R * T / (V - b) - a / V ** 2
+        return (self.R * T / (V - b)) - (a / V ** 2)
 
     def ideal_gas(self, V, T):
         return self.R * T / V
@@ -75,28 +86,58 @@ class Function:
                 self.y3.append(y_res3)
 
         if self.crv == 3:
-            '''with open('gas.json', 'r') as gas_info:
-                data = json.load(gas_info)
 
-            if self.gas is None:
-                self.gas = "He"
+            for j in range(len(self.v_pos)):
+                p1 = self.ideal_gas(self.v_pos[j], 300)
+                p2 = self.ideal_gas(self.v_pos[j], 400)
+                p3 = self.ideal_gas(self.v_pos[j], 500)
 
-            a = data[self.gas]["a"]
-            b = data[self.gas]["b"]
-            '''
-
-            self.y1 = []
-            self.y2 = []
-            self.y3 = []
-
-            for j in range(len(self.v)):
-                p1 = self.ideal_gas(self.v[j], 300)
-                p2 = self.ideal_gas(self.v[j], 400)
-                p3 = self.ideal_gas(self.v[j], 500)
+                p4 = self.ideal_gas(self.v_neg[j], 300)
+                p5 = self.ideal_gas(self.v_neg[j], 400)
+                p6 = self.ideal_gas(self.v_neg[j], 500)
 
                 self.y1.append(p1)
                 self.y2.append(p2)
                 self.y3.append(p3)
 
+                self.y4.append(p4)
+                self.y5.append(p5)
+                self.y6.append(p6)
+
+        if self.crv == 4:
+
+            with open('gas.json', 'r') as gas_info:
+                data = json.load(gas_info)
+            K = 5
+            T = K / self.R
+            if self.gas is None:
+                a = 1
+                b = 4
+            else:
+                a = data[self.gas]["a"]
+                b = data[self.gas]["b"]
+
+            print(a, b)
+
+            for j in range(len(self.vdw_neg)):
+                p1 = self.van_der_waals(a, b, self.vdw_neg[j], T)
+                self.y1.append(p1)
+            for x in range(len(self.vdw_pos1)):
+                p1 = self.van_der_waals(a, b, self.vdw_pos1[x], T)
+                self.y2.append(p1)
+            for y in range(len(self.vdw_pos2)):
+                p1 = self.van_der_waals(a, b, self.vdw_pos2[y], T)
+                self.y3.append(p1)
+            for z in range(len(self.vdw_pos3)):
+                p1 = self.van_der_waals(a, b, self.vdw_pos3[z], T)
+                self.y4.append(p1)
+
     def get_data(self):
-        return self.v, self.x, self.y1, self.y2, self.y3
+        return self.x, self.y1, self.y2, self.y3
+
+    def get_data_IG(self):
+        return self.v_pos, self.v_neg, self.y1, self.y2, self.y3, self.y4, self.y5, self.y6
+
+    def get_data_VDW(self):
+        return self.vdw_neg, self.vdw_pos1, self.vdw_pos2, self.vdw_pos3, \
+               self.y1, self.y2, self.y3, self.y4

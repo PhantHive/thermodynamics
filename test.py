@@ -6,11 +6,13 @@ R = 8.3145
 with open('gas.json', 'r') as gas_info:
     data = json.load(gas_info)
 
-a = data["CO2"]["a"]
-b = data["CO2"]["b"]
+a = 1
+b = 4
 
 
-def van_der_waals(V, T):
+v = [v for v in np.arange(-15, 15, 0.01)]
+
+def van_der_waals(V, K):
     '''
     :param a: constant depending of the gas (bar L^2 mol^-2)
     :param b: constant depending of the gas (L mol^-1)
@@ -18,9 +20,8 @@ def van_der_waals(V, T):
     :param V: Volume
     :return: P , pression (Pa)
     '''
-    if V == 0:
-        V = b
-    return R * T / (V - b) - a / V ** 2
+
+    return (K / (V - b)) - (a / V ** 2)
 
 
 def ideal_gas(V, T):
@@ -32,19 +33,15 @@ def ideal_gas(V, T):
 def clausius(V, T):
     return R * T / (V - b)
 
+y1 = []
+for j in range(len(v)):
+    res = van_der_waals(v[j], 5)
+    y1.append(res)
 
-for t in np.arange(300, 501, 100):
-    vval = []
-    pval = []
-    for v in np.arange(-10, 11, 10**-5):
-        p = ideal_gas(v, t)
-        vval.append(v)
-        pval.append(p)
-
-    plt.plot(vval, pval, label='$T=$' + str(t))
+plt.plot(v, y1)
 
 plt.gca().spines['bottom'].set_position(('data', 0))
 plt.gca().spines['left'].set_position(('data', 0))
-plt.ylim(-4000, 4000)
+plt.ylim(-15, 15)
 plt.legend()
 plt.show()
