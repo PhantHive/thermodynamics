@@ -81,7 +81,7 @@ def neon_curve_VDW(vdw_neg, vdw_pos1, vdw_pos2, vdw_pos3, y1, y2, y3, y4):
         plt.plot(vdw_pos3, y4,
                  linewidth=2 + (diff_linewidth * n),
                  alpha=alpha_value,
-                 color='#08F7FE')
+                 color='#FF8F00')
 
         plt.vlines(0, -15, 15,
                    linewidth=2 + (diff_linewidth * n),
@@ -131,9 +131,9 @@ class Curve:
 
         plt.plot(vdw_neg, y1, label=self.labels[0], color='#08F7FE')
         plt.vlines(0, -15, 15, label=self.labels[1], color='#0019FF')  # asymptote (x=zero)
-        plt.plot(vdw_pos1, y2, label=self.labels[2],  color='#00ff41')
-        plt.plot(vdw_pos2, y3,  color='#FE53BB')
-        plt.plot(vdw_pos3, y4, color='#08F7FE')
+        plt.plot(vdw_pos1, y2, color='#00ff41')
+        plt.plot(vdw_pos2, y3, label=self.labels[2], color='#FE53BB')
+        plt.plot(vdw_pos3, y4, color='#FF8F00')
 
         plt.legend(facecolor="black", frameon=True)
 
